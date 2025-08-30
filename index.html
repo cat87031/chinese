@@ -316,6 +316,10 @@
             transform: translateY(0);
         }
         
+        .notification.error {
+            background: #f44336;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -408,7 +412,7 @@
                 <h2>上傳Excel生字表</h2>
                 <button class="close-btn" onclick="closeUploadModal()">&times;</button>
             </div>
-            <p>請上傳符合格式的Excel生字表檔案，系統將自動讀取生字資料。</p>
+            <p>請上傳只包含生字的Excel檔案，系統將自動獲取注音、部首、筆畫、造詞、成語和造句資訊。</p>
             <div style="margin: 20px 0;">
                 <input type="file" id="excelFile" accept=".xlsx, .xls">
             </div>
@@ -419,7 +423,7 @@
         </div>
     </div>
 
-    <div class="notification" id="notification">
+    <div class="notification hidden" id="notification">
         <i class="fas fa-check-circle"></i> <span id="notification-text"></span>
     </div>
 
@@ -529,6 +533,90 @@
             ]
         };
 
+        // 模擬教育百科資料庫
+        const characterDatabase = {
+            "春": {
+                phonetic: "ㄔㄨㄣ",
+                radical: "日",
+                strokes: 9,
+                words: ["春天", "春風", "春假", "春季", "春節"],
+                idioms: ["春暖花開", "春光明媚", "春回大地"],
+                sentences: ["春天來了，百花盛開。", "春風吹綠了大地。", "我們在春天去郊遊。"]
+            },
+            "風": {
+                phonetic: "ㄈㄥ",
+                radical: "風",
+                strokes: 9,
+                words: ["風車", "風箏", "風景", "風雨", "風光"],
+                idioms: ["風和日麗", "風平浪靜", "風調雨順"],
+                sentences: ["今天風和日麗，適合出遊。", "風箏在天空中飛翔。", "這裡的風景很美。"]
+            },
+            "花": {
+                phonetic: "ㄏㄨㄚ",
+                radical: "艸",
+                strokes: 8,
+                words: ["花朵", "花園", "開花", "花草", "花束"],
+                idioms: ["花好月圓", "花團錦簇", "百花齊放"],
+                sentences: ["公園裡開滿了各種顏色的花。", "媽媽在花園裡種了很多花。", "這束花真漂亮。"]
+            },
+            "草": {
+                phonetic: "ㄘㄠˇ",
+                radical: "艸",
+                strokes: 9,
+                words: ["草地", "草原", "青草", "草叢", "稻草"],
+                idioms: ["草木皆兵", "草長鶯飛", "寸草春暉"],
+                sentences: ["小兔子在草地上跳來跳去。", "草原上有許多牛羊。", "青草綠油油的很好看。"]
+            },
+            "雨": {
+                phonetic: "ㄩˇ",
+                radical: "雨",
+                strokes: 8,
+                words: ["雨水", "下雨", "雨衣", "雨傘", "雨滴"],
+                idioms: ["雨過天晴", "風雨同舟", "春風化雨"],
+                sentences: ["下雨後，天空出現了一道彩虹。", "記得帶雨傘，今天會下雨。", "雨水滋潤了大地。"]
+            },
+            "綠": {
+                phonetic: "ㄌㄩˋ",
+                radical: "糸",
+                strokes: 14,
+                words: ["綠色", "綠葉", "綠油油", "綠草", "綠樹"],
+                idioms: ["綠草如茵", "綠水青山", "紅花綠葉"],
+                sentences: ["春天來了，樹葉變得綠油油的。", "我喜歡綠色的衣服。", "綠草如茵的公園很適合散步。"]
+            },
+            "鳥": {
+                phonetic: "ㄋㄧㄠˇ",
+                radical: "鳥",
+                strokes: 11,
+                words: ["小鳥", "鳥巢", "鳥叫", "鳥類", "飛鳥"],
+                idioms: ["鳥語花香", "驚弓之鳥", "一石二鳥"],
+                sentences: ["清晨時分，可以聽到小鳥在樹上唱歌。", "鳥巢裡有小鳥寶寶。", "鳥類是我們的朋友。"]
+            },
+            "蟲": {
+                phonetic: "ㄔㄨㄥˊ",
+                radical: "虫",
+                strokes: 18,
+                words: ["蟲子", "毛毛蟲", "昆蟲", "害蟲", "爬蟲"],
+                idioms: ["雕蟲小技", "百足之蟲", "蟲鳴鳥叫"],
+                sentences: ["花園裡有許多小蟲子在爬。", "毛毛蟲會變成蝴蝶。", "昆蟲的世界很有趣。"]
+            },
+            "動": {
+                phonetic: "ㄉㄨㄥˋ",
+                radical: "力",
+                strokes: 11,
+                words: ["動物", "動作", "動畫", "動人", "活動"],
+                idioms: ["動如脫兔", "驚天動地", "動人心弦"],
+                sentences: ["動物園裡有許多可愛的動物。", "他的動作很靈活。", "這部動畫很好看。"]
+            },
+            "物": {
+                phonetic: "ㄨˋ",
+                radical: "牛",
+                strokes: 8,
+                words: ["物品", "物體", "植物", "動物", "食物"],
+                idioms: ["物美價廉", "物盡其用", "龐然大物"],
+                sentences: ["超市裡的物品應有盡有。", "這個物體是什麼形狀？", "植物需要陽光和水。"]
+            }
+        };
+
         // 初始化頁面
         document.addEventListener('DOMContentLoaded', function() {
             // 顯示第一課的生字
@@ -600,13 +688,14 @@
         // 關閉上傳模態框
         function closeUploadModal() {
             document.getElementById('uploadModal').classList.add('hidden');
+            document.getElementById('excelFile').value = '';
         }
 
         // 處理Excel檔案
         function processExcel() {
             const fileInput = document.getElementById('excelFile');
             if (!fileInput.files.length) {
-                showNotification('請先選擇Excel檔案');
+                showNotification('請先選擇Excel檔案', true);
                 return;
             }
             
@@ -614,26 +703,66 @@
             const reader = new FileReader();
             
             reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                
-                // 獲取第一個工作表
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                
-                if (jsonData.length > 0) {
-                    showNotification(`成功讀取 ${jsonData.length} 筆生字資料`);
-                    // 這裡可以添加處理資料的邏輯
-                } else {
-                    showNotification('Excel檔案中沒有找到資料');
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    
+                    // 獲取第一個工作表
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    if (jsonData.length === 0) {
+                        showNotification('Excel檔案中沒有找到資料', true);
+                        return;
+                    }
+                    
+                    // 處理生字資料
+                    const newCharacters = [];
+                    const missingChars = [];
+                    
+                    jsonData.forEach(row => {
+                        const char = Object.values(row)[0]; // 獲取第一列的值
+                        if (char && characterDatabase[char]) {
+                            const charData = characterDatabase[char];
+                            newCharacters.push({
+                                word: char,
+                                phonetic: charData.phonetic,
+                                radical: charData.radical,
+                                strokes: charData.strokes,
+                                words: charData.words.slice(0, 3), // 取前三個造詞
+                                idiom: charData.idioms[0], // 取第一個成語
+                                sentence: charData.sentences[0] // 取第一個造句
+                            });
+                        } else if (char) {
+                            missingChars.push(char);
+                        }
+                    });
+                    
+                    if (newCharacters.length > 0) {
+                        // 添加到第一課
+                        lessonData[1] = newCharacters;
+                        renderCharacters(1);
+                        
+                        // 更新課程列表
+                        document.querySelector('.lesson-item.active').classList.remove('active');
+                        document.querySelector('.lesson-item[data-lesson="1"]').classList.add('active');
+                        document.querySelector('.content-title').textContent = '上傳的生字 - 生字總表';
+                        
+                        showNotification(`成功處理 ${newCharacters.length} 個生字`);
+                    }
+                    
+                    if (missingChars.length > 0) {
+                        showNotification(`以下生字在資料庫中找不到：${missingChars.join(', ')}`, true);
+                    }
+                    
+                    closeUploadModal();
+                } catch (error) {
+                    showNotification('處理Excel檔案時發生錯誤：' + error.message, true);
                 }
-                
-                closeUploadModal();
             };
             
             reader.onerror = function() {
-                showNotification('讀取檔案時發生錯誤');
-                closeUploadModal();
+                showNotification('讀取檔案時發生錯誤', true);
             };
             
             reader.readAsArrayBuffer(file);
@@ -641,30 +770,16 @@
 
         // 下載Excel範本
         function downloadTemplate() {
-            // 範本資料
+            // 範本資料 - 只需要生字列
             const templateData = [
-                {
-                    "生字": "範",
-                    "注音": "ㄈㄢˋ",
-                    "部首": "竹",
-                    "筆畫": 12,
-                    "造詞1": "範例",
-                    "造詞2": "範圍",
-                    "造詞3": "規範",
-                    "成語": "垂範百世",
-                    "造句": "老師在黑板上寫了一個範例。"
-                },
-                {
-                    "生字": "本",
-                    "注音": "ㄅㄣˇ",
-                    "部首": "木",
-                    "筆畫": 5,
-                    "造詞1": "本子",
-                    "造詞2": "課本",
-                    "造詞3": "本來",
-                    "成語": "本來面目",
-                    "造句": "我有一個漂亮的本子。"
-                }
+                {"生字": "春"},
+                {"生字": "風"},
+                {"生字": "花"},
+                {"生字": "草"},
+                {"生字": "雨"},
+                {"生字": "綠"},
+                {"生字": "鳥"},
+                {"生字": "蟲"}
             ];
             
             // 建立工作簿
@@ -672,7 +787,7 @@
             const worksheet = XLSX.utils.json_to_sheet(templateData);
             
             // 將工作表添加到工作簿
-            XLSX.utils.book_append_sheet(workbook, worksheet, "生字範本");
+            XLSX.utils.book_append_sheet(workbook, worksheet, "生字表");
             
             // 生成Excel檔案
             XLSX.writeFile(workbook, "國語生字範本.xlsx");
@@ -681,11 +796,17 @@
         }
 
         // 顯示通知
-        function showNotification(message) {
+        function showNotification(message, isError = false) {
             const notification = document.getElementById('notification');
             const notificationText = document.getElementById('notification-text');
             
             notificationText.textContent = message;
+            notification.className = 'notification';
+            
+            if (isError) {
+                notification.classList.add('error');
+            }
+            
             notification.classList.add('show');
             
             // 3秒後隱藏通知

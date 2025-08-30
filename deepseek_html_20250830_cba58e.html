@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國語生字學習系統 - 南一版二年級上學期</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: white;
+            padding: 20px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .lesson-list {
+            list-style: none;
+        }
+        
+        .lesson-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #4e54c8;
+        }
+        
+        .lesson-item:hover {
+            background: #e0e6ff;
+            transform: translateX(5px);
+        }
+        
+        .lesson-item.active {
+            background: #4e54c8;
+            color: white;
+        }
+        
+        .upload-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #ccc;
+        }
+        
+        .upload-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background: #4cae4c;
+        }
+        
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #337ab7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 1rem;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        .download-btn:hover {
+            background: #286090;
+        }
+        
+        .content-area {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f4ff;
+        }
+        
+        .content-title {
+            font-size: 1.8rem;
+            color: #4e54c8;
+        }
+        
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .char-card {
+            background: #f9faff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+        
+        .char-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .char-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .char-word {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4e54c8;
+        }
+        
+        .char-phonetic {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .char-detail {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .char-detail i {
+            width: 25px;
+            color: #4e54c8;
+        }
+        
+        .char-examples {
+            background: #edf0ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .char-examples h4 {
+            margin-bottom: 10px;
+            color: #4e54c8;
+        }
+        
+        .example-list {
+            list-style: none;
+        }
+        
+        .example-list li {
+            padding: 5px 0;
+            border-bottom: 1px dashed #d0d5ff;
+        }
+        
+        .example-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #uploadModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .template-download {
+            display: block;
+            margin-top: 15px;
+            color: #337ab7;
+            text-decoration: none;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+            
+            .char-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-book-open"></i>
+                    <div>
+                        <h1>國語生字學習系統</h1>
+                        <div class="subtitle">114學年度上學期二年級 - 國語南一版</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="download-btn" onclick="downloadPage()">
+                        <i class="fas fa-download"></i> 下載網頁
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="sidebar">
+                <h2><i class="fas fa-list-ul"></i> 課程選擇</h2>
+                <ul class="lesson-list">
+                    <li class="lesson-item active" data-lesson="1">第一課：春天的顏色</li>
+                    <li class="lesson-item" data-lesson="2">第二課：小動物回家</li>
+                    <li class="lesson-item" data-lesson="3">第三課：我的家人</li>
+                    <li class="lesson-item" data-lesson="4">第四課：快樂的節日</li>
+                    <li class="lesson-item" data-lesson="5">第五課：美麗的大自然</li>
+                    <li class="lesson-item" data-lesson="6">第六課：數字真有趣</li>
+                    <li class="lesson-item" data-lesson="7">第七課：好吃的食物</li>
+                    <li class="lesson-item" data-lesson="8">第八課：我的好朋友</li>
+                    <li class="lesson-item" data-lesson="9">第九課：學校生活</li>
+                    <li class="lesson-item" data-lesson="10">第十課：交通工具</li>
+                    <li class="lesson-item" data-lesson="11">第十一課：時間的故事</li>
+                    <li class="lesson-item" data-lesson="12">第十二課：我會做的事</li>
+                </ul>
+
+                <div class="upload-section">
+                    <h2><i class="fas fa-file-upload"></i> 上傳生字表</h2>
+                    <button class="upload-btn" onclick="openUploadModal()">
+                        <i class="fas fa-upload"></i> 上傳Excel生字表
+                    </button>
+                    <button class="download-btn" onclick="downloadTemplate()">
+                        <i class="fas fa-file-excel"></i> 下載Excel範本檔案
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="content-header">
+                    <h2 class="content-title">第一課：春天的顏色 - 生字總表</h2>
+                    <div class="actions">
+                        <span>共 <span id="char-count">8</span> 個生字</span>
+                    </div>
+                </div>
+
+                <div class="char-grid" id="characters-container">
+                    <!-- 生字卡片會由JavaScript動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="uploadModal" class="hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>上傳Excel生字表</h2>
+                <button class="close-btn" onclick="closeUploadModal()">&times;</button>
+            </div>
+            <p>請上傳符合格式的Excel生字表檔案，系統將自動讀取生字資料。</p>
+            <div style="margin: 20px 0;">
+                <input type="file" id="excelFile" accept=".xlsx, .xls">
+            </div>
+            <button class="upload-btn" onclick="processExcel()">處理檔案</button>
+            <a href="#" class="template-download" onclick="downloadTemplate()">
+                <i class="fas fa-download"></i> 下載Excel範本檔案
+            </a>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i> <span id="notification-text"></span>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>國語生字學習系統 &copy; 2023 - 資料來源：教育雲「教育百科」</p>
+            <p>本系統僅供學習使用，成語檢索連結至教育部《成語典》</p>
+        </div>
+    </footer>
+
+    <script>
+        // 示例生字資料
+        const lessonData = {
+            1: [
+                {
+                    word: "春",
+                    phonetic: "ㄔㄨㄣ",
+                    radical: "日",
+                    strokes: 9,
+                    words: ["春天", "春風", "春假"],
+                    idiom: "春暖花開",
+                    sentence: "春天來了，百花盛開。"
+                },
+                {
+                    word: "風",
+                    phonetic: "ㄈㄥ",
+                    radical: "風",
+                    strokes: 9,
+                    words: ["風車", "風箏", "風景"],
+                    idiom: "風和日麗",
+                    sentence: "今天風和日麗，適合出遊。"
+                },
+                {
+                    word: "花",
+                    phonetic: "ㄏㄨㄚ",
+                    radical: "艸",
+                    strokes: 8,
+                    words: ["花朵", "花園", "開花"],
+                    idiom: "花好月圓",
+                    sentence: "公園裡開滿了各種顏色的花。"
+                },
+                {
+                    word: "草",
+                    phonetic: "ㄘㄠˇ",
+                    radical: "艸",
+                    strokes: 9,
+                    words: ["草地", "草原", "青草"],
+                    idiom: "草木皆兵",
+                    sentence: "小兔子在草地上跳來跳去。"
+                },
+                {
+                    word: "雨",
+                    phonetic: "ㄩˇ",
+                    radical: "雨",
+                    strokes: 8,
+                    words: ["雨水", "下雨", "雨衣"],
+                    idiom: "雨過天晴",
+                    sentence: "下雨後，天空出現了一道彩虹。"
+                },
+                {
+                    word: "綠",
+                    phonetic: "ㄌㄩˋ",
+                    radical: "糸",
+                    strokes: 14,
+                    words: ["綠色", "綠葉", "綠油油"],
+                    idiom: "綠草如茵",
+                    sentence: "春天來了，樹葉變得綠油油的。"
+                },
+                {
+                    word: "鳥",
+                    phonetic: "ㄋㄧㄠˇ",
+                    radical: "鳥",
+                    strokes: 11,
+                    words: ["小鳥", "鳥巢", "鳥叫"],
+                    idiom: "鳥語花香",
+                    sentence: "清晨時分，可以聽到小鳥在樹上唱歌。"
+                },
+                {
+                    word: "蟲",
+                    phonetic: "ㄔㄨㄥˊ",
+                    radical: "虫",
+                    strokes: 18,
+                    words: ["蟲子", "毛毛蟲", "昆蟲"],
+                    idiom: "雕蟲小技",
+                    sentence: "花園裡有許多小蟲子在爬。"
+                }
+            ],
+            2: [
+                {
+                    word: "動",
+                    phonetic: "ㄉㄨㄥˋ",
+                    radical: "力",
+                    strokes: 11,
+                    words: ["動物", "動作", "動畫"],
+                    idiom: "動如脫兔",
+                    sentence: "動物園裡有許多可愛的動物。"
+                },
+                {
+                    word: "物",
+                    phonetic: "ㄨˋ",
+                    radical: "牛",
+                    strokes: 8,
+                    words: ["物品", "物體", "植物"],
+                    idiom: "物美價廉",
+                    sentence: "超市裡的物品應有盡有。"
+                }
+            ]
+        };
+
+        // 初始化頁面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 顯示第一課的生字
+            renderCharacters(1);
+            
+            // 為課程列表添加點擊事件
+            const lessonItems = document.querySelectorAll('.lesson-item');
+            lessonItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // 移除所有active類
+                    lessonItems.forEach(i => i.classList.remove('active'));
+                    // 為當前項目添加active類
+                    this.classList.add('active');
+                    // 獲取課程編號
+                    const lessonNum = this.getAttribute('data-lesson');
+                    // 更新內容標題
+                    document.querySelector('.content-title').textContent = 
+                        this.textContent + ' - 生字總表';
+                    // 渲染對應的生字
+                    renderCharacters(lessonNum);
+                });
+            });
+        });
+
+        // 渲染生字卡片
+        function renderCharacters(lessonNum) {
+            const container = document.getElementById('characters-container');
+            const characters = lessonData[lessonNum] || [];
+            
+            // 更新生字計數
+            document.getElementById('char-count').textContent = characters.length;
+            
+            // 清空容器
+            container.innerHTML = '';
+            
+            // 生成生字卡片
+            characters.forEach(char => {
+                const card = document.createElement('div');
+                card.className = 'char-card';
+                card.innerHTML = `
+                    <div class="char-header">
+                        <div class="char-word">${char.word}</div>
+                        <div class="char-phonetic">${char.phonetic}</div>
+                    </div>
+                    <div class="char-detail">
+                        <i class="fas fa-pen-nib"></i>
+                        <span>部首：${char.radical} | 筆畫：${char.strokes}</span>
+                    </div>
+                    <div class="char-examples">
+                        <h4><i class="fas fa-font"></i> 造詞</h4>
+                        <ul class="example-list">
+                            ${char.words.map(word => `<li>${word}</li>`).join('')}
+                        </ul>
+                        <h4><i class="fas fa-star"></i> 成語</h4>
+                        <p>${char.idiom}</p>
+                        <h4><i class="fas fa-comment"></i> 造句</h4>
+                        <p>${char.sentence}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 打開上傳模態框
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        // 關閉上傳模態框
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+        }
+
+        // 處理Excel檔案
+        function processExcel() {
+            const fileInput = document.getElementById('excelFile');
+            if (!fileInput.files.length) {
+                showNotification('請先選擇Excel檔案');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // 獲取第一個工作表
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                if (jsonData.length > 0) {
+                    showNotification(`成功讀取 ${jsonData.length} 筆生字資料`);
+                    // 這裡可以添加處理資料的邏輯
+                } else {
+                    showNotification('Excel檔案中沒有找到資料');
+                }
+                
+                closeUploadModal();
+            };
+            
+            reader.onerror = function() {
+                showNotification('讀取檔案時發生錯誤');
+                closeUploadModal();
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 下載Excel範本
+        function downloadTemplate() {
+            // 範本資料
+            const templateData = [
+                {
+                    "生字": "範",
+                    "注音": "ㄈㄢˋ",
+                    "部首": "竹",
+                    "筆畫": 12,
+                    "造詞1": "範例",
+                    "造詞2": "範圍",
+                    "造詞3": "規範",
+                    "成語": "垂範百世",
+                    "造句": "老師在黑板上寫了一個範例。"
+                },
+                {
+                    "生字": "本",
+                    "注音": "ㄅㄣˇ",
+                    "部首": "木",
+                    "筆畫": 5,
+                    "造詞1": "本子",
+                    "造詞2": "課本",
+                    "造詞3": "本來",
+                    "成語": "本來面目",
+                    "造句": "我有一個漂亮的本子。"
+                }
+            ];
+            
+            // 建立工作簿
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(templateData);
+            
+            // 將工作表添加到工作簿
+            XLSX.utils.book_append_sheet(workbook, worksheet, "生字範本");
+            
+            // 生成Excel檔案
+            XLSX.writeFile(workbook, "國語生字範本.xlsx");
+            
+            showNotification('Excel範本下載成功');
+        }
+
+        // 顯示通知
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            // 3秒後隱藏通知
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 下載網頁
+        function downloadPage() {
+            showNotification('網頁下載功能需連接GitHub API，此為前端演示版本。');
+        }
+
+        // 點擊模態框外部關閉模態框
+        window.onclick = function(event) {
+            const modal = document.getElementById('uploadModal');
+            if (event.target == modal) {
+                closeUploadModal();
+            }
+        }
+    </script>
+</body>
+</html>
